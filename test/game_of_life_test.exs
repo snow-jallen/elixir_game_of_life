@@ -38,23 +38,6 @@ defmodule GameOfLifeTest do
       assert Enum.sort(expected_board) == Enum.sort(actual_board)
     end
 
-    # test "Rule 3: any live cell with more than three neighbors dies, as if by overpopulation" do
-    #   starting_board = [
-    #                       %Cell{x: 2, y: 4}, %Cell{x: 3, y: 4},
-    #                       %Cell{x: 2, y: 3}, %Cell{x: 3, y: 3},
-    #                                          %Cell{x: 3, y: 2}
-    #   ]
-
-    #   expected_board = [
-    #                       %Cell{x: 2, y: 4}, %Cell{x: 3, y: 4},
-    #                                                             %Cell{x: 4, y: 3},
-    #                       %Cell{x: 2, y: 2}, %Cell{x: 2, y: 3},
-    #   ]
-    #   actual_board = Board.advance(starting_board)
-
-    #   assert expected_board == actual_board
-    # end
-
     test "Rule 4: any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction" do
       starting_board = [%Cell{x: 1, y: 1}, %Cell{x: 2, y: 1}, %Cell{x: 1, y: 2}, %Cell{x: 2, y: 2}, %Cell{x: 3, y: 1}]
     end
