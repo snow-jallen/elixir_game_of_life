@@ -7,26 +7,12 @@ defmodule Board do
     end)
     |> Enum.uniq
 
-    IO.inspect relevent_cells
-    # cells_remain_alive =
-    #   current_board
-    #   |> Enum.filter(fn c -> cell_should_live?(c, current_board) end)
-
-    # for cell <- current_board, neighbor <- neighbors(cell) do
-    #   case cell_should_live?(neighbor, current_board) do
-    #     true -> neighbor
-    #     _ -> "none"
-    #   end
-    # end
     Enum.reduce(relevent_cells, [], fn cell, acc ->
       case cell_should_live?(cell, current_board) do
         true -> [ cell | acc ]
         _ -> acc
       end
     end)
-
-    # cells_remain_alive ++ cells_become_alive
-    # |> Enum.uniq
   end
 
   def cell_should_live?(cell, board) do
