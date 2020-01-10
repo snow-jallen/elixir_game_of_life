@@ -23,3 +23,5 @@ erl_crash.dump
 game_of_life-*.tar
 
 .elixir_ls/
+
+/build/
