@@ -21,19 +21,19 @@ defmodule GameOfLifeTest do
 
     test "Rule 3: any live cell with more than three neighbors dies, as if by overpopulation" do
       starting_board = [
-        %Cell{x: 1, y: 4},                    %Cell{x: 3, y: 4},
-        %Cell{x: 1, y: 3},                    %Cell{x: 3, y: 3},
-                           %Cell{x: 2, y: 2},
-        %Cell{x: 1, y: 1},                    %Cell{x: 3, y: 1},
-        %Cell{x: 1, y: -1},                   %Cell{x: 3, y: -1},
+
+                          %Cell{x: 2, y: 4}, %Cell{x: 3, y: 4}, %Cell{x: 4, y: 4},
+                          %Cell{x: 2, y: 3}, %Cell{x: 3, y: 3}, %Cell{x: 4, y: 3},
+                          %Cell{x: 2, y: 2}, %Cell{x: 3, y: 2}, %Cell{x: 4, y: 2},
+
       ]
 
       expected_board = [
-        %Cell{x: 1, y: 4},                    %Cell{x: 3, y: 4},
-        %Cell{x: 1, y: 3},                    %Cell{x: 3, y: 3},
-
-        %Cell{x: 1, y: 1},                    %Cell{x: 3, y: 1},
-        %Cell{x: 1, y: -1},                   %Cell{x: 3, y: -1},
+                                              %Cell{x: 3, y: 5},
+                           %Cell{x: 2, y: 4},                    %Cell{x: 4, y: 4},
+        %Cell{x: 1, y: 3},                                                          %Cell{x: 5, y: 3},
+                           %Cell{x: 2, y: 2},                    %Cell{x: 4, y: 2},
+                                              %Cell{x: 3, y: 1},
       ]
       actual_board = Board.advance(starting_board)
 
