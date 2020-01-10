@@ -1,17 +1,25 @@
 defmodule Board do
   defstruct livecells: []
 
-  def advance(_current_board) do
-    # cells_to_test =
-    # for live_cell <- current_board,
-    #   neighbor <- neighbors(live_cell) do
-    #   case cell_should_live(neighbor, current_board) do
+  def advance(current_board) do
+    cells_remain_alive =
+      current_board
+      |> Enum.filter(fn c -> cell_should_live?(c, current_board) end)
 
-    #   end
-    # end
+    cells_become_alive = []
+
+    for cell <- current_board, neighbor <- neighbors(cell) do
+      case cell_should_live?(neighbor, current_board) do
+        true -> [neighbor | cells_become_alive]
+        _ -> cells_become_alive
+      end
+    end
+
+    cells_remain_alive ++ cells_become_alive
+    |> Enum.uniq
   end
 
-  def cell_should_live(cell, board) do
+  def cell_should_live?(cell, board) do
     case neighbor_count(cell, board) do
       n when n < 2 -> false
       n when n <= 3 -> true
