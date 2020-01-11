@@ -11,19 +11,28 @@ defmodule RleParser do
       lines: lines
     }
 
-    cells = []
-    row = result.x
-    _col = result.y
-    lines
-    |> Enum.map_reduce(%{row: row, cells: cells}, fn line, acc ->
-      cells = parse_line(line, acc.row, acc.cells)
-      %{row: acc.row-1, cells: cells}
-    end)
+    IO.inspect result
+
+    # cells = []
+    # row = result.x
+    # _col = result.y
+    # lines
+    # |> Enum.map_reduce(%{row: row, cells: cells}, fn line, acc ->
+    #   cells = parse_line(line, acc.row, acc.cells)
+    #   %{row: acc.row-1, cells: cells}
+    # end)
   end
 
   def parse_line(line, row, cells) do
     line_to_parts(line)
-    |> add_cells(row, 1, cells)
+    |> IO.inspect
+    |> Enum.flat_map_reduce(%{cells: cells, row: row}, fn part, acc ->
+      cells = add_cells(part, acc.row, 1, acc.cells)
+      IO.puts "Finished add_cells(#{inspect part}, #{row}, 1, #{inspect acc})"
+      acc = %{acc | row: acc.row-1, cells: cells}
+      acc
+      |> IO.inspect
+    end)
   end
 
   def line_to_parts(line) do
@@ -35,11 +44,13 @@ defmodule RleParser do
     end)
   end
 
-  def add_cells([], _row, _col, cells) do
-    cells
+  def add_cells([], _row, col, cells) do
+    IO.puts "reached add_cells base case. col=#{col}, cells=#{inspect cells}"
+    %{cells: cells, col: col}
   end
 
-  def add_cells([command|rest], row, col, cells) do
+  def add_cells(command, row, col, cells) do
+    IO.puts "starting add_cells with #{inspect command}, #{row}, #{col}, #{inspect cells}"
     case Integer.parse(command) do
       {count, "o"} ->
         case count do
@@ -47,14 +58,15 @@ defmodule RleParser do
             IO.puts "Down to 0, nothing more to add"
             cells
           _ ->
-            cells = [%Cell{x: row, y: col} | cells]
+            cells = [%Cell{x: col, y: row} | cells]
             IO.puts "Added new cell, calling with #{count-1}"
             IO.inspect cells
-            add_cells(["#{count-1}o"|rest], row, col+1, cells)
+            add_cells("#{count-1}o", row, col+1, cells)
         end
       {count, "b"} ->
-        IO.puts "I'm supposed to do #{command}...recursing..."
-        add_cells([rest], row, col+count, cells)
+        IO.puts "I'm supposed to do #{count} blanks"
+        IO.puts "calling add_cells with [], #{row}, #{col+count}, #{inspect cells}"
+        add_cells([], row, col+count, cells)
     end
   end
 end

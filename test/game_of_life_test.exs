@@ -65,8 +65,8 @@ defmodule GameOfLifeTest do
       o$obo$2o!
       """
 
-      %{x: 3, y: 3, rule: "B3/S23", lines: _lines} = RleParser.parse(rle)
-
+      %{x: 3, y: 3, rule: "B3/S23", lines: lines} = RleParser.parse(rle)
+      inspect lines
     end
 
     test "parse line - single cell on" do
