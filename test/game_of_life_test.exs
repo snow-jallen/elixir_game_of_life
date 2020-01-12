@@ -66,7 +66,11 @@ defmodule GameOfLifeTest do
       """
 
       actual = RleParser.parse(rle) |> Enum.sort
-      expected = [%Cell{x: 1, y: 3}, %Cell{x: 1, y: 2}, %Cell{x: 3, y: 2}, %Cell{x: 1, y: 1}, %Cell{x: 2, y: 1}] |> Enum.sort
+      expected = [
+        %Cell{x: 1, y: 3},
+        %Cell{x: 1, y: 2}, %Cell{x: 3, y: 2},
+        %Cell{x: 1, y: 1}, %Cell{x: 2, y: 1}
+      ] |> Enum.sort
       assert expected == actual
     end
 
@@ -80,6 +84,19 @@ defmodule GameOfLifeTest do
       expected = [
         %Cell{x: 1, y: 1}, %Cell{x: 4, y: 1},%Cell{x: 9, y: 1}
         ] |> Enum.sort
+      assert expected == actual
+    end
+
+    test "multiple blank rows" do
+      rle = """
+        x = 2, y = 20, rule = B3/S23
+        o9$2o10$o!
+        """
+
+      actual = RleParser.parse(rle) |> Enum.sort
+      expected = [
+        %Cell{y: 1, x: 1}, %Cell{y: 11, x: 1}, %Cell{y: 11, x: 2}, %Cell{y: 20, x: 1}
+      ] |> Enum.sort
       assert expected == actual
     end
   end
@@ -99,4 +116,10 @@ x = 24, y = 19, rule = B3/S23
 $4bo9b2o$4b3o8b2o$6b2o8b2o$7bo9bo$7b2o8b2o4bo$8bo14bo$23bo$o22bo$o22bo
 $o21b2o$o21bo$o20b2o$2o18b2o$b2o16b2o$2b2o13b3o$3b2o10b3o$4b2o4b5o$5b
 6o!
+"""
+
+
+_sample3 = """
+x = 2, y = 20, rule = B3/S23
+o9$2o10$o!
 """

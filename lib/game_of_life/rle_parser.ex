@@ -15,19 +15,30 @@ defmodule RleParser do
     row = result.y
     {_row, cells} = lines
       |> Enum.reduce({row, cells}, fn line, {row, cells} ->
-        cells = parse_line(line, row, cells)
+        {cells, row} = parse_line(line, row, cells)
         {row - 1, cells}
       end)
     cells
   end
 
   def parse_line(line, row, cells) do
-    {cells, _row, _col} = line_to_parts(line)
+    {cells, row, _col} = line_to_parts(line)
       |> Enum.reduce({cells, row, 1}, fn part, {cells, row, col} ->
-        %{cells: cells, col: new_col} = add_cells(part, row, col, cells)
-        {cells, row, new_col}
+        case ends_in_o_or_b(part) do
+          true ->
+            %{cells: cells, col: new_col} = add_cells(part, row, col, cells)
+            {cells, row, new_col}
+          false ->
+            # The row will naturally be decreased by 1 so we skip 1 less row
+            rows_to_skip = String.to_integer(part) - 1
+            {cells, row - rows_to_skip, col}
+        end
       end)
-    cells
+    {cells, row}
+  end
+
+  def ends_in_o_or_b(part) do
+    String.contains?(part, "o") || String.contains?(part, "b")
   end
 
   def line_to_parts(line) do
