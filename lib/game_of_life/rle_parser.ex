@@ -64,4 +64,24 @@ defmodule RleParser do
         %{cells: cells, col: col + count}
     end
   end
+
+  def dump(cells) do
+    cells
+    |> Enum.sort(&(&1.y >= &2.y && &1.x <= &2.x))
+    |> Enum.group_by(&(&1.y), &(&1.x))
+    |> Enum.sort
+    |> Enum.reverse
+    |> IO.inspect(label: "sort, group_by, sort, reverse")
+    |> Enum.reduce("x = ?, y = ?, rule = B3/S23\n", fn {row, cells}, rle ->
+      IO.puts "row: #{row}, cells: #{inspect cells}"
+      rle <> encode_row(cells)
+    end)
+    |> IO.inspect(label: "after reduce")
+
+  end
+
+  def encode_row(cells) do
+    prefix = how_many_in_a_row(cells)
+
+  end
 end

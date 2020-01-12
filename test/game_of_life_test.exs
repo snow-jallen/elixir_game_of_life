@@ -101,6 +101,42 @@ defmodule GameOfLifeTest do
     end
   end
 
+  describe "dump_rle/1" do
+    test "basic pattern" do
+      starting = [
+        %Cell{x: 1, y: 3},
+        %Cell{x: 1, y: 2}, %Cell{x: 3, y: 2},
+        %Cell{x: 1, y: 1}, %Cell{x: 2, y: 1}
+      ]
+
+      expected_rle = """
+      x = 3, y = 3, rule = B3/S23
+      o$obo$2o!
+      """
+      actual_rle = RleParser.dump(starting)
+
+      assert expected_rle == actual_rle
+    end
+
+    test "encode_row - single cell" do
+      actual = RleParser.encode_row("[1]")
+      expected = "o"
+      assert expected == actual
+    end
+
+    test "encode_row continuous cells" do
+      actual = RleParser.encode_row([1,2,3])
+      expected = "3o"
+      assert expected == actual
+    end
+
+    test "encode_row runs and skips" do
+      actual = RleParser.encode_row([1,2,6,7,8,22,50])
+      expected = "2o3b3o13bo27bo$"
+      assert expected == actual
+    end
+  end
+
 end
 
 _sample = """
