@@ -1,5 +1,18 @@
 defmodule Board do
-  defstruct livecells: []
+  defstruct livecells: [],
+            min_x: :negative_infinity,
+            max_x: :positive_infinity,
+            min_y: :negative_infinity,
+            max_y: :positive_infinity
+
+  def split(board, num_partitions) do
+    # return list of boards with an extra cell on each side
+  end
+
+  def combine(boards) when is_list(boards) do
+    # put the partial boards together, ignoring the outermost layer
+  end
+
 
   def advance(current_board) do
     relevent_cells = Enum.reduce(current_board, [], fn cell, acc ->
