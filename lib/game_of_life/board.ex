@@ -1,11 +1,55 @@
 defmodule Board do
   defstruct livecells: [],
-            min_x: :negative_infinity,
-            max_x: :positive_infinity,
-            min_y: :negative_infinity,
-            max_y: :positive_infinity
+            min_x: 0,
+            max_x: 0,
+            min_y: 0,
+            max_y: 0
 
-  def split(board, num_partitions) do
+  def create([first_cell | other_cells]) do
+    %Board{
+      livecells: [first_cell],
+      min_x: first_cell.x,
+      max_x: first_cell.x,
+      min_y: first_cell.y,
+      max_y: first_cell.y
+    }
+    |> do_create(other_cells)
+  end
+
+  def create([]) do
+    %Board{}
+  end
+
+  def do_create(board, []) do
+    board
+  end
+
+  def do_create(%Board{} = board, [next_cell | other_cells]) do
+    %Board{
+      livecells: [next_cell | board.livecells],
+      min_x: smaller_number(board.min_x, next_cell.x),
+      max_x: larger_number(board.max_x, next_cell.x),
+      min_y: smaller_number(board.min_y, next_cell.y),
+      max_y: larger_number(board.max_y, next_cell.y)
+    }
+    |> do_create(other_cells)
+  end
+
+  def smaller_number(num1, num2) do
+    case num1 < num2 do
+      true -> num1
+      false -> num2
+    end
+  end
+
+  def larger_number(num1, num2) do
+    case num1 < num2 do
+      true -> num2
+      false -> num1
+    end
+  end
+
+  def split(board, side_length) do
     # return list of boards with an extra cell on each side
   end
 
