@@ -49,61 +49,53 @@ defmodule Board do
     end
   end
 
-  def split(board, side_length) do
-    boards = initialize_boards_with_x_coords(board, side_length)
-    # boards is list
-    boards = calculate_boards_y_coords(boards, side_length)
+  def split(master_board, side_length) do
+    boards_with_dimensions = initialize_list_of_boards(master_board, side_length)
+    Enum.map(boards_with_dimensions, fn board ->
+      %{ board | livecells: get_live_cells_in_board(board, master_board) }
+    end)
   end
 
-  def initialize_boards_with_x_coords(board, step_size) do
-    do_initialize_boards_with_x_coords(board.min_x, board.max_x, step_size, [])
-  end
+  def initialize_list_of_boards(%Board{} = board, side_length) do
+    num_x_divisions = div(board.max_x - board.min_x, side_length) + 1
+    num_y_divisions = div(board.max_y - board.min_y, side_length) + 1
 
-  def do_initialize_boards_with_x_coords(current_x, max_x, step_size, acc) do
-    local_max = find_local_max(current_x, step_size)
-    case local_max < max_x do
-      true -> acc = [
-                %Board{
-                  min_x: current_x,
-                  max_x: local_max
-                } | acc]
-              do_initialize_boards_with_x_coords(local_max+1, max_x, step_size, acc)
-      false -> [
-                %Board{
-                  min_x: current_x,
-                  max_x: local_max
-                } | acc]
+    for i <- 1..num_x_divisions, j <- 1..num_y_divisions do
+        %Board{
+          min_x: safe_min(board.min_x + (i-1)*side_length),
+          max_x: safe_max(board.min_x + (i)*side_length),
+          min_y: safe_min(board.min_y + (j-1)*side_length),
+          max_y: safe_max(board.min_y + (j)*side_length)
+        }
     end
   end
 
-  def calculate_boards_y_coords([current_board | other_boards], side_length) do
-
-  end
-
-  def do_initialize_boards_with_y_coords(current_y, max_y, min_x, max_x, step_size, acc) do
-    local_max = find_local_max(current_y, step_size)
-    case local_max < max_y do
-      true -> acc = [
-                %Board{
-                  min_y: current_y,
-                  max_y: local_max
-                } | acc]
-              do_initialize_boards_with_x_coords(local_max+1, max_x, step_size, acc)
-      false -> [
-                %Board{
-                  min_x: current_x,
-                  max_x: local_max
-                } | acc]
+  def safe_min(number) do
+    case number do
+      0 -> 1
+      _ -> number
     end
   end
 
-  def find_local_max(current, step_size) do
-    local_max = current + step_size
-    case local_max == 0 do
-      true -> local_max + 1
-      false -> local_max
+  def safe_max(number) do
+    case number do
+      0 -> -1
+      _ -> number
     end
   end
+
+  def get_live_cells_in_board(board, master_board) do
+    Enum.reduce(master_board.livecells, [], fn cell, acc ->
+      case cell.x < board.max_x
+       and cell.x > board.min_x
+       and cell.y < board.max_y
+       and cell.y > board.min_y do
+        true -> [cell | acc]
+        false -> acc
+      end
+    end)
+  end
+
 
   def combine(boards) when is_list(boards) do
     # put the partial boards together, ignoring the outermost layer
