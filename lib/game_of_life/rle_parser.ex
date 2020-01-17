@@ -81,7 +81,7 @@ defmodule RleParser do
   end
 
   def encode_row(cells) do
-    prefix = how_many_in_a_row(cells)
+    
 
   end
 end

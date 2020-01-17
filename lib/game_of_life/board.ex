@@ -2,14 +2,14 @@ defmodule Board do
   defstruct livecells: []
 
   def advance(current_board) do
-    relevent_cells = Enum.reduce(current_board, [], fn cell, acc ->
+    current_board
+    |> Enum.reduce([], fn cell, acc ->
       [cell | neighbors(cell)] ++ acc
     end)
     |> Enum.uniq
-
-    Enum.reduce(relevent_cells, [], fn cell, acc ->
+    |> Enum.reduce([], fn cell, acc ->
       case cell_should_live?(cell, current_board) do
-        true -> [ cell | acc ]
+        true -> [cell | acc]
         _ -> acc
       end
     end)
