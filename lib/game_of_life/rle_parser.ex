@@ -95,6 +95,9 @@ defmodule RleParser do
     Regex.replace(~r/\$$/, rle, "!")
   end
 
+  # Note: Michael Ries' solution is _much_ shorter.
+  # Study his @ https://gist.github.com/mmmries/9ec5dfecaf8f6b5048ed2c98305d3335
+
   def encode([1]), do: "o$"
 
   def encode([first]) when first > 1 do
