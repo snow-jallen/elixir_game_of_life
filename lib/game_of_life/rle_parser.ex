@@ -66,22 +66,105 @@ defmodule RleParser do
   end
 
   def dump(cells) do
+    max_x =
+      cells
+      |> Enum.map(&(&1.x))
+      |> Enum.max
+
+    max_y =
+      cells
+      |> Enum.map(&(&1.y))
+      |> Enum.max
+
     cells
     |> Enum.sort(&(&1.y >= &2.y && &1.x <= &2.x))
     |> Enum.group_by(&(&1.y), &(&1.x))
     |> Enum.sort
     |> Enum.reverse
     |> IO.inspect(label: "sort, group_by, sort, reverse")
-    |> Enum.reduce("x = ?, y = ?, rule = B3/S23\n", fn {row, cells}, rle ->
+    |> Enum.reduce("x = #{max_x}, y = #{max_y}, rule = B3/S23\n", fn {row, cells}, rle ->
       IO.puts "row: #{row}, cells: #{inspect cells}"
-      rle <> encode_row(cells)
+      rle <> encode(cells)
     end)
     |> IO.inspect(label: "after reduce")
+    |> replace_last_dollar_with_bang()
 
   end
 
-  def encode_row(cells) do
-    
-
+  def replace_last_dollar_with_bang(rle) do
+    Regex.replace(~r/\$$/, rle, "!")
   end
+
+  def encode([1]), do: "o$"
+
+  def encode([first]) when first > 1 do
+    case first - 1 do
+      1 -> "bo$"
+      n -> "#{n}bo$"
+    end
+  end
+
+  def encode(row=[first|_rest]) when first > 1 do
+    case first - 1 do
+      1 -> do_encode("b", row)
+      n -> do_encode("#{n}b", row)
+    end
+  end
+
+  def encode(row=[1|_rest]) do
+    do_encode("", row)
+  end
+
+  defp do_encode(acc, row=[first,next|_rest]) when first + 1 == next do
+    num = count_sequence(row)
+    remaining = Enum.drop(row, num)
+
+    blanks =
+      case remaining do
+        [] -> ""
+        _ ->
+          num_blanks = Enum.at(row, num) - Enum.at(row, num-1) - 1
+          case num_blanks do
+            1 -> "b"
+            n -> "#{n}b"
+          end
+      end
+
+    acc <> "#{num}o" <> blanks
+    |> do_encode(remaining)
+  end
+
+  defp do_encode(acc, _row=[first,next|rest]) do
+    blanks =
+      case next - first - 1 do
+        1 -> "b"
+        n -> "#{n}b"
+      end
+    acc <> "o" <> blanks
+    |> do_encode([next|rest])
+  end
+
+  defp do_encode(acc, [_last]) do
+    acc <> "o$"
+  end
+
+  defp do_encode(acc, []), do: acc <> "$"
+
+  def count_sequence(_row=[first,next|rest]) when first + 1 == next do
+    do_count_sequence([next | rest], 2)
+  end
+
+  def count_sequence([first,last]) when first + 1 == last, do: 2
+  def count_sequence([]), do: 0
+  def count_sequence(_), do: 1
+
+  defp do_count_sequence([first,next], acc) when first + 1 == next do
+    acc + 1
+  end
+
+  defp do_count_sequence(_row=[first,next|rest], acc) when first + 1 == next do
+    do_count_sequence([next | rest], acc+1)
+  end
+
+  defp do_count_sequence(_, acc), do: acc
 end

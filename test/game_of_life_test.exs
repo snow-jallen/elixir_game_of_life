@@ -112,27 +112,71 @@ defmodule GameOfLifeTest do
       expected_rle = """
       x = 3, y = 3, rule = B3/S23
       o$obo$2o!
-      """
+      """ |> String.trim
       actual_rle = RleParser.dump(starting)
 
       assert expected_rle == actual_rle
     end
 
-    test "encode_row - single cell" do
-      actual = RleParser.encode_row("[1]")
-      expected = "o"
+    test "encode - single cell" do
+      actual = RleParser.encode([1])
+      expected = "o$"
       assert expected == actual
     end
 
-    test "encode_row continuous cells" do
-      actual = RleParser.encode_row([1,2,3])
-      expected = "3o"
+    test "encode continuous cells" do
+      actual = RleParser.encode([1,2,3])
+      expected = "3o$"
       assert expected == actual
     end
 
-    test "encode_row runs and skips" do
-      actual = RleParser.encode_row([1,2,6,7,8,22,50])
+    test "encode runs and skips" do
+      actual = RleParser.encode([1,2,6,7,8,22,50])
       expected = "2o3b3o13bo27bo$"
+      assert expected == actual
+    end
+  end
+
+  describe "count_sequence/1" do
+    test "empty list" do
+      actual = RleParser.count_sequence([])
+      expected = 0
+      assert expected == actual
+    end
+
+    test "[1]" do
+      actual = RleParser.count_sequence([1])
+      expected = 1
+      assert expected == actual
+    end
+
+    test "[1,2]" do
+      actual = RleParser.count_sequence([1,2])
+      expected = 2
+      assert expected == actual
+    end
+
+    test "[1,3]" do
+      actual = RleParser.count_sequence([1,3])
+      expected = 1
+      assert expected == actual
+    end
+
+    test "[1,2,3]" do
+      actual = RleParser.count_sequence([1,2,3])
+      expected = 3
+      assert expected == actual
+    end
+
+    test "[1,2,4]" do
+      actual = RleParser.count_sequence([1,2,4])
+      expected = 2
+      assert expected == actual
+    end
+
+    test "[1,2,3,4,5,6]" do
+      actual = RleParser.count_sequence([1,2,3,4,5,6])
+      expected = 6
       assert expected == actual
     end
   end
