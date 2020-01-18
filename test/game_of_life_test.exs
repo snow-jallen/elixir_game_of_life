@@ -258,7 +258,6 @@ defmodule GameOfLifeTest do
   describe "solver tests" do
     @tag timeout: :infinity
     test "sample 1" do
-      :observer.start
       starting_rle = """
       x = 6, y = 6, rule = B3/S23
       2bo$bobo$o2b2o$b2o2bo$2bobo$3bo!
@@ -266,13 +265,9 @@ defmodule GameOfLifeTest do
 
       actual_rle =
         starting_rle
-        |> IO.inspect(label: "step 1 - parsing rle")
         |> RleParser.parse
-        |> IO.inspect(label: "step 2 - running game")
         |> Game.run(4)
-        |> IO.inspect(label: "step 3 - dumping rle")
         |> RleParser.dump
-        |> IO.inspect(label: "step 4 - dumped actual")
 
       expected_rle = """
       x = 6, y = 6, rule = B3/S23
@@ -281,6 +276,40 @@ defmodule GameOfLifeTest do
 
         assert expected_rle == actual_rle
     end
+
+    test "smiley face" do
+      starting_rle = """
+      x = 14, y = 11, rule = B3/S23
+      4bo3bo$4bo3bo$4bo3bo$4bo3bo3$2o10b2o$bo10bo$b2o8b2o$2b3o5b2o$4b7o!
+      """
+
+      actual_rle =
+        starting_rle
+        |> RleParser.parse
+        |> IO.inspect(label: "starting board")
+        |> Game.run(1)
+        |> IO.inspect(label: "ending board")
+        |> RleParser.dump
+
+      expected_rle = """
+      x = 32, y = 29, rule = B3/S23
+      17b3o$8b3o6b3o$8b3o6b3o$8b3o6b3o$8b2o8b2o$9b2o7b2o$10b2o6b3o$9b3o6b3o$
+      9b3o6b3o$9b3o2$29b3o$b2o26b3o$b2o11b2o13b3o$2o12b2o13b3o$3o10b2o14b3o$
+      2o11b3o13b3o$b2o10b2o2bo11b3o$14b4o11b3o$2b2o11b2o13b2o$29b2o$3bobo$3b
+      o2bo21b2o$4bo2bo19b3o$5bo2bo17b3o$6bo17b4o$7b2obob15o$10b15o$11b11o!
+      """ |> String.trim
+
+      assert expected_rle == actual_rle
+    end
+  end
+
+  test "fill in empty rows" do
+    actual =
+      [{6, [2, 5]}, {5, [1, 6]}, {2, [1, 6]}, {1, [2, 5]}]
+      |> RleParser.fill_in_empty_rows
+    expected = [{6, [2, 5]}, {5, [1, 6]}, {4, []}, {3, []}, {2, [1, 6]}, {1, [2, 5]}]
+
+    assert expected == actual
   end
 
 end

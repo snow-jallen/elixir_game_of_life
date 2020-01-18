@@ -79,16 +79,49 @@ defmodule RleParser do
       |> Enum.max
 
     cells
-    |> Enum.sort(&(&1.y >= &2.y && &1.x <= &2.x))
+    |> Enum.sort(&(&1.y >= &2.y))
     |> Enum.group_by(&(&1.y), &(&1.x))
     |> Enum.sort
     |> Enum.reverse
+    |> fill_in_empty_rows()
     |> Enum.reduce("x = #{max_x}, y = #{max_y}, rule = B3/S23\n", fn {row, cells}, rle ->
-      IO.puts "row: #{row}, cells: #{inspect cells}"
       rle <> encode(Enum.sort(cells))
-    end)
+      end)
     |> replace_last_dollar_with_bang()
+    |> consolidate_multiple_dollar_signs()
+  end
 
+  def consolidate_multiple_dollar_signs(rle) do
+    rle
+    |> String.replace(~r/\$*/, fn match ->
+      case String.length(match) do
+        0 -> ""
+        1 -> "$"
+        n -> "#{n}$"
+        end
+    end)
+  end
+
+  def fill_in_empty_rows(rows = [_first = {starting_row, _} | _rest]) do
+
+    {_, result} = rows
+      |> Enum.reduce({starting_row,[]}, fn r = {row_num, _cells}, {last_row, result} ->
+        case last_row - row_num do
+          0 -> {row_num, [r | result]}
+          1 -> {row_num, [r | result]}
+          n ->
+            new_rows =
+              (n-1)..1
+              |> Enum.map(fn x ->
+                new_row = last_row - x
+                {new_row, []}
+              end)
+            {last_row - n, [r] ++ new_rows ++ result}
+        end
+      end)
+
+    result
+    |> Enum.reverse
   end
 
   def shift_negative(cells) do
@@ -120,6 +153,7 @@ defmodule RleParser do
   # Note: Michael Ries' solution is _much_ shorter.
   # Study his @ https://gist.github.com/mmmries/9ec5dfecaf8f6b5048ed2c98305d3335
 
+  def encode([]), do: "$"
   def encode([1]), do: "o$"
 
   def encode([first]) when first > 1 do
