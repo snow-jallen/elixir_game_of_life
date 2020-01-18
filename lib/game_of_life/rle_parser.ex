@@ -66,6 +66,8 @@ defmodule RleParser do
   end
 
   def dump(cells) do
+    cells = shift_negative(cells)
+
     max_x =
       cells
       |> Enum.map(&(&1.x))
@@ -81,14 +83,34 @@ defmodule RleParser do
     |> Enum.group_by(&(&1.y), &(&1.x))
     |> Enum.sort
     |> Enum.reverse
-    |> IO.inspect(label: "sort, group_by, sort, reverse")
     |> Enum.reduce("x = #{max_x}, y = #{max_y}, rule = B3/S23\n", fn {row, cells}, rle ->
       IO.puts "row: #{row}, cells: #{inspect cells}"
       rle <> encode(cells)
     end)
-    |> IO.inspect(label: "after reduce")
     |> replace_last_dollar_with_bang()
 
+  end
+
+  def shift_negative(cells) do
+    #find min x, min y, add to get to 1
+    min_x =
+      cells
+      |> Enum.map(&(&1.x))
+      |> Enum.min
+
+    delta_x = min_x * -1 + 1
+
+    min_y =
+      cells
+      |> Enum.map(&(&1.y))
+      |> Enum.min
+
+    delta_y = min_y * -1 + 1
+
+    cells
+    |> Enum.reduce([], fn c, acc ->
+      [%Cell{x: c.x + delta_x, y: c.y + delta_y}] ++ acc
+    end)
   end
 
   def replace_last_dollar_with_bang(rle) do

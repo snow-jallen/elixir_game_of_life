@@ -117,6 +117,21 @@ defmodule GameOfLifeTest do
       assert expected == actual
     end
 
+    test "handle negative cells" do
+      starting = [
+                                                %Cell{x: -3, y: -3},
+        %Cell{x: -5, y: -4},                    %Cell{x: -3, y: -4},
+        %Cell{x: -5, y: -5}, %Cell{x: -4, y: -5}
+      ]
+
+      expected = """
+      x = 3, y = 3, rule = B3/S23
+      2bo$obo$2o!
+      """ |> String.trim
+      actual = RleParser.dump(starting)
+      assert expected == actual
+    end
+
     test "encode - single cell" do
       actual = RleParser.encode([1])
       expected = "o$"
@@ -193,10 +208,6 @@ defmodule GameOfLifeTest do
       actual=RleParser.encode([1,2,3])
       expected="3o$"
       assert expected == actual
-    end
-
-    test "don't forget to test negative %Cell{} coordinates - they need to be translated so the left-most value starts at 1" do
-      assert 1 == 2, "handle negative coordinates!"
     end
   end
 
