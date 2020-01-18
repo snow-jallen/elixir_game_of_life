@@ -74,14 +74,85 @@ defmodule RleParser do
     |> IO.inspect(label: "sort, group_by, sort, reverse")
     |> Enum.reduce("x = ?, y = ?, rule = B3/S23\n", fn {row, cells}, rle ->
       IO.puts "row: #{row}, cells: #{inspect cells}"
+      #"#{rle} #{encode_row(cells)}"
       rle <> encode_row(cells)
     end)
     |> IO.inspect(label: "after reduce")
 
   end
 
-  def encode_row(cells) do
-    prefix = how_many_in_a_row(cells)
-
+  def encode_row(row) do
+    case continuous(row, 0) do
+      %{count: 1, remaining: []} -> "o$"
+      %{count: prefix, remaining: []} -> "#{prefix}o$"
+      %{count: prefix, remaining: remaining} -> "#{prefix}o"<>encode_row(remaining)
+    end
   end
+
+  def continuous([], num_in_a_row), do: %{count: num_in_a_row, remaining: []}
+
+  def continuous([_x], num_in_a_row), do: %{count: num_in_a_row+1, remaining: []}
+
+  def continuous([x, x1 | rest], num_in_a_row) do
+    case (x + 1 == x1) do
+      true -> continuous([x1 | rest], num_in_a_row + 1)
+      false -> %{count: num_in_a_row + 1, remaining: [x1 | rest]}
+    end
+  end
+
+  def encode(row) do
+    do_encode(1, row, "b", "")
+  end
+
+  defp do_encode(start, [single], command, acc) do
+    case single - start do
+      0 -> acc<>next_command(command)<>"$"
+      diff -> acc<>"#{diff}"<>command<>next_command(command)<>"$"
+    end
+  end
+
+  defp do_encode(_start, _row = [1, 2], _command, acc) do
+    acc <> "2o$"
+  end
+
+  defp do_encode(_start, _row = [1, other], _command, acc) do
+    acc <> "o" <>
+      case other - 2 do
+        1 -> "bo$"
+        diff -> "#{diff}bo$"
+      end
+  end
+
+  defp do_encode(_start, _row = [next, other], _command, acc) when other == next + 1 do
+    acc <>
+      case next - 1 do
+        1 -> "b"
+        diff -> "#{diff}b"
+      end
+      <> "2o$"
+  end
+
+  defp do_encode(_start, _row = [next, other], _command, acc) do
+    acc <>
+      case next - 1 do
+        1 -> "bo"
+        diff -> "#{diff}bo"
+      end
+      <>
+      case other - next - 1 do
+        1 -> "bo$"
+        diff -> "#{diff}bo$"
+      end
+  end
+
+  defp do_encode(start, row = [next,second|rest], command, acc) do
+    case next - start do
+      0 -> do_encode(start, row, next_command(command), acc)
+      1 -> do_encode(next, rest, next_command(command), acc<>"o")
+      diff -> do_encode(next, rest, next_command(command), acc<>"#{diff}#{command}")
+    end
+  end
+
+  defp next_command("o"), do: "b"
+  defp next_command("b"), do: "o"
 end
