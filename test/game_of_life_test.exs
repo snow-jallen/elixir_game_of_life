@@ -109,73 +109,29 @@ defmodule GameOfLifeTest do
         %Cell{x: 1, y: 1}, %Cell{x: 2, y: 1}
       ]
 
-    #   expected_rle = """
-    #   x = 3, y = 3, rule = B3/S23
-    #   o$obo$2o!
-    #   """
-    #   actual_rle = RleParser.dump(starting)
-
-    #   assert expected_rle == actual_rle
-    end
-
-    # test "encode_row - single cell" do
-    #   actual = RleParser.encode_row("[1]")
-    #   expected = "o"
-    #   assert expected == actual
-    # end
-
-    # test "encode_row continuous cells" do
-    #   actual = RleParser.encode_row([1,2,3])
-    #   expected = "3o"
-    #   assert expected == actual
-    # end
-
-    # test "encode_row runs and skips" do
-    #   actual = RleParser.encode_row([1,2,6,7,8,22,50])
-    #   expected = "2o3b3o13bo27bo$"
-    #   assert expected == actual
-    # end
-  end
-
-  describe "continuous/2" do
-    test "empty list is 0" do
-      actual = RleParser.continuous([], 0)
-      expected = %{count: 0, remaining: []}
+      expected = """
+      x = 3, y = 3, rule = B3/S23
+      2bo$obo$2o!
+      """ |> String.trim
+      actual = RleParser.dump(starting)
       assert expected == actual
     end
 
-    test "list of 1 is 1" do
-      actual = RleParser.continuous([1], 0)
-      expected = %{count: 1, remaining: []}
-      assert expected == actual
-    end
-
-    test "three in a row is 3" do
-      actual = RleParser.continuous([1, 2, 3], 0)
-      expected = %{count: 3, remaining: []}
-      assert expected == actual
-    end
-
-    test "three in a row with a break is still 3" do
-      actual = RleParser.continuous([1, 2, 3, 7], 0)
-      expected = %{count: 3, remaining: [7]}
-      assert expected == actual
-    end
-
-    test "four in a row with a break is 4" do
-      actual = RleParser.continuous([1, 2, 3, 4, 7, 8, 9], 0)
-      expected = %{count: 4, remaining: [7, 8, 9]}
-      assert expected == actual
-    end
-
-    test "missing numbers at the start are blanks" do
-      actual = RleParser.continuous([3,4,5,9], 0)
-      expected = %{encoded: "2b3o", remaining: [9]}
-    end
-
-    test "encode 1" do
+    test "encode - single cell" do
       actual = RleParser.encode([1])
       expected = "o$"
+      assert expected == actual
+    end
+
+    test "encode continuous cells" do
+      actual = RleParser.encode([1,2,3])
+      expected = "3o$"
+      assert expected == actual
+    end
+
+    test "encode runs and skips" do
+      actual = RleParser.encode([1,2,6,7,8,22,50])
+      expected = "2o3b3o13bo27bo$"
       assert expected == actual
     end
 
@@ -241,6 +197,50 @@ defmodule GameOfLifeTest do
 
     test "don't forget to test negative %Cell{} coordinates - they need to be translated so the left-most value starts at 1" do
       assert 1 == 2, "handle negative coordinates!"
+    end
+  end
+
+  describe "count_sequence/1" do
+    test "empty list" do
+      actual = RleParser.count_sequence([])
+      expected = 0
+      assert expected == actual
+    end
+
+    test "[1]" do
+      actual = RleParser.count_sequence([1])
+      expected = 1
+      assert expected == actual
+    end
+
+    test "[1,2]" do
+      actual = RleParser.count_sequence([1,2])
+      expected = 2
+      assert expected == actual
+    end
+
+    test "[1,3]" do
+      actual = RleParser.count_sequence([1,3])
+      expected = 1
+      assert expected == actual
+    end
+
+    test "[1,2,3]" do
+      actual = RleParser.count_sequence([1,2,3])
+      expected = 3
+      assert expected == actual
+    end
+
+    test "[1,2,4]" do
+      actual = RleParser.count_sequence([1,2,4])
+      expected = 2
+      assert expected == actual
+    end
+
+    test "[1,2,3,4,5,6]" do
+      actual = RleParser.count_sequence([1,2,3,4,5,6])
+      expected = 6
+      assert expected == actual
     end
   end
 
