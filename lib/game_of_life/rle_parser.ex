@@ -85,7 +85,7 @@ defmodule RleParser do
     |> Enum.reverse
     |> Enum.reduce("x = #{max_x}, y = #{max_y}, rule = B3/S23\n", fn {row, cells}, rle ->
       IO.puts "row: #{row}, cells: #{inspect cells}"
-      rle <> encode(cells)
+      rle <> encode(Enum.sort(cells))
     end)
     |> replace_last_dollar_with_bang()
 
