@@ -66,7 +66,9 @@ defmodule RleParser do
   end
 
   def dump(cells) do
+    IO.inspect(cells, label: "before shift_negative")
     cells = shift_negative(cells)
+    IO.inspect(cells, label: "after shift_negative")
 
     max_x =
       cells
@@ -84,7 +86,7 @@ defmodule RleParser do
     |> Enum.sort
     |> Enum.reverse
     |> fill_in_empty_rows()
-    |> Enum.reduce("x = #{max_x}, y = #{max_y}, rule = B3/S23\n", fn {row, cells}, rle ->
+    |> Enum.reduce("x = #{max_x}, y = #{max_y}, rule = B3/S23\n", fn {_row, cells}, rle ->
       rle <> encode(Enum.sort(cells))
       end)
     |> replace_last_dollar_with_bang()
@@ -126,23 +128,33 @@ defmodule RleParser do
 
   def shift_negative(cells) do
     #find min x, min y, add to get to 1
-    min_x =
+    delta_x =
       cells
       |> Enum.map(&(&1.x))
       |> Enum.min
+      |> case do
+        neg_x when neg_x < 0 -> neg_x * -1
+        0 -> 0
+        pos_x -> (pos_x - 1) * -1
+      end
 
-    delta_x = min_x * -1 + 1
-
-    min_y =
+    delta_y =
       cells
       |> Enum.map(&(&1.y))
       |> Enum.min
+      |> case do
+        neg_y when neg_y < 0 -> neg_y * -1
+        0 -> 0
+        pos_y -> (pos_y - 1) * -1
+      end
 
-    delta_y = min_y * -1 + 1
+    IO.puts("delta_x=#{delta_x}; delta_y=#{delta_y}")
 
     cells
     |> Enum.reduce([], fn c, acc ->
-      [%Cell{x: c.x + delta_x, y: c.y + delta_y}] ++ acc
+      new_cell = %Cell{x: Board.translate(c.x, delta_x), y: Board.translate(c.y, delta_y)}
+      IO.puts("moving from #{inspect c} to #{inspect new_cell}")
+      [new_cell] ++ acc
     end)
   end
 

@@ -279,27 +279,60 @@ defmodule GameOfLifeTest do
 
     test "smiley face" do
       starting_rle = """
-      x = 14, y = 11, rule = B3/S23
-      4bo3bo$4bo3bo$4bo3bo$4bo3bo3$2o10b2o$bo10bo$b2o8b2o$2b3o5b2o$4b7o!
+      x = 10, y = 12, rule = B3/S23
+      3bo2bo$3bo2bo$3bo2bo$3bo2bo3$o8bo$2o7bo$bo6b2o$b2o5bo$2b7o$5b2o!
       """
 
       actual_rle =
         starting_rle
         |> RleParser.parse
-        |> IO.inspect(label: "starting board")
-        |> Game.run(1)
-        |> IO.inspect(label: "ending board")
+        |> Game.run(20)
         |> RleParser.dump
 
-      expected_rle = """
-      x = 32, y = 29, rule = B3/S23
-      17b3o$8b3o6b3o$8b3o6b3o$8b3o6b3o$8b2o8b2o$9b2o7b2o$10b2o6b3o$9b3o6b3o$
-      9b3o6b3o$9b3o2$29b3o$b2o26b3o$b2o11b2o13b3o$2o12b2o13b3o$3o10b2o14b3o$
-      2o11b3o13b3o$b2o10b2o2bo11b3o$14b4o11b3o$2b2o11b2o13b2o$29b2o$3bobo$3b
-      o2bo21b2o$4bo2bo19b3o$5bo2bo17b3o$6bo17b4o$7b2obob15o$10b15o$11b11o!
+      IO.puts(actual_rle)
+
+      expected_1 = """
+      x = 11, y = 11, rule = B3/S23
+      2b6o$2b6o4$2o$2o7b2o$8b2o$bo2b3o$b4o3bo$3bo!
       """ |> String.trim
 
-      assert expected_rle == actual_rle
+      expected_2 = """
+      x = 11, y = 12, rule = B3/S23
+      3b4o$2bo4bo$2bo4bo$3b4o3$2o$2o6b3o$2o3bo2b3o$bo2b2ob3o$bo$3b2o!
+      """ |> String.trim
+
+      expected_3 = """
+      x = 12, y = 12, rule = B3/S23
+      5b2o$4b4o$3bob2obo$3bob2obo$4b4o$5b2o2$b2o7bo$o2bo5bobo$3bob3o$2b2ob4o
+      2bo$3b2obo2bo!
+      """ |> String.trim
+
+      expected_20 = """
+      x = 4, y = 3, rule = B3/S23
+      b2o$o2bo$b2o!
+      """ |> String.trim
+
+      assert expected_20 == actual_rle
+    end
+
+    test "odd shape" do
+      actual =
+        """
+        x = 2, y = 5, rule = B3/S23
+        2o$2o$2o$bo$bo!
+        """
+        |> RleParser.parse
+        |> Game.run(1)
+        |> RleParser.dump
+
+      IO.puts actual
+
+      expected = """
+      x = 4, y = 4, rule = B3/S23
+      b2o$o2bo$3bo$2b2o!
+      """ |> String.trim
+
+      assert expected == actual
     end
   end
 

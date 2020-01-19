@@ -45,8 +45,9 @@ defmodule Board do
 
   def translate(orig, change) do
     newVal = orig + change
-    case newVal do
-      0 -> newVal + change
+    case (newVal >= 0 && orig < 0) ||
+         (newVal <= 0 && orig > 0) do
+      true -> newVal + div(change,change)
       _ -> newVal
     end
   end
