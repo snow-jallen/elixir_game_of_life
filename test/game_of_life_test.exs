@@ -57,6 +57,6 @@ defmodule GameOfLifeTest do
 
     end
   end
-
+  . If there are multiple that day, please say "yes" or "no" for each one you did.
 end
 
