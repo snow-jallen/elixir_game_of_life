@@ -32,23 +32,14 @@ defmodule Board do
 
   def neighbors(%Cell{} = cell) do
     [
-      %Cell{x: translate(cell.x, -1), y: translate(cell.y,+1)},
-      %Cell{x: translate(cell.x, -1), y: translate(cell.y, 0)},
-      %Cell{x: translate(cell.x, -1), y: translate(cell.y,-1)},
-      %Cell{x: translate(cell.x,  0), y: translate(cell.y,+1)},
-      %Cell{x: translate(cell.x,  0), y: translate(cell.y,-1)},
-      %Cell{x: translate(cell.x, +1), y: translate(cell.y,+1)},
-      %Cell{x: translate(cell.x, +1), y: translate(cell.y, 0)},
-      %Cell{x: translate(cell.x, +1), y: translate(cell.y,-1)}
+      %Cell{x: cell.x-1, y: cell.y+1},
+      %Cell{x: cell.x-1, y: cell.y+0},
+      %Cell{x: cell.x-1, y: cell.y-1},
+      %Cell{x: cell.x+0, y: cell.y+1},
+      %Cell{x: cell.x+0, y: cell.y-1},
+      %Cell{x: cell.x+1, y: cell.y+1},
+      %Cell{x: cell.x+1, y: cell.y+0},
+      %Cell{x: cell.x+1, y: cell.y-1}
     ]
-  end
-
-  def translate(orig, change) do
-    newVal = orig + change
-    case (newVal >= 0 && orig < 0) ||
-         (newVal <= 0 && orig > 0) do
-      true -> newVal + div(change,change)
-      _ -> newVal
-    end
   end
 end
